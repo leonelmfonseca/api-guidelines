@@ -15,6 +15,9 @@ import org.springframework.web.bind.annotation.RestController;
   backward compatibility and smooth transitions between versions
   */
 
+// API versioning in Java is a crucial best practice for
+// maintaining backward compatibility and ensuring a smooth transition
+// between different versions of your API.
 @RestController
 @RequestMapping("/api/v1/products")
 public class ProductV1Controller {
