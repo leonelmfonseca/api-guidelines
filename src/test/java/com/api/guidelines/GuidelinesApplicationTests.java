@@ -7,7 +7,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 class GuidelinesApplicationTests {
 
 	@Test
-	void contextLoads() {
+	void contextLoads() { // default implementation ignored
 	}
 
 }
