@@ -1,4 +1,4 @@
-package com.api.guidelines.controller;
+package com.api.guidelines.controller.versioning;
 
 import com.api.guidelines.model.Product;
 import com.api.guidelines.service.ProductService;
