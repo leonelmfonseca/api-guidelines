@@ -6,10 +6,12 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString
 // With this lombok annotation Equals and Hashcode
 // are now determined in "of" fields
 @EqualsAndHashCode(of = {"name", "description", "category"})
