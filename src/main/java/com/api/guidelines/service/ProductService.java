@@ -5,6 +5,7 @@ import com.api.guidelines.entity.Product;
 import com.api.guidelines.exceptions.ProductNotFoundException;
 import com.api.guidelines.mapper.ProductMapper;
 import com.api.guidelines.repository.ProductRepository;
+import jakarta.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -39,7 +40,7 @@ public class ProductService {
   }
 
   @Transactional(readOnly = true)
-  public List<ProductDTO> getAllProductsV2() {
+  public @NotNull List<ProductDTO> getAllProductsV2() {
     List<Product> productEntities = productRepository.findAll();
     List<ProductDTO> productDTOS = ProductMapper.INSTANCE.toDTOList(productEntities);
     Predicate<ProductDTO> isNewProduct = dto -> dto.getStock() > 0;
@@ -60,12 +61,12 @@ public class ProductService {
   }
 
   @Transactional(readOnly = true)
-  public Optional<ProductDTO> getProductById(Long id) {
+  public @NotNull Optional<ProductDTO> getProductById(@NotNull Long id) {
     return productRepository.findById(id).map(productMapper::toDTO);
   }
 
   @Transactional
-  public ProductDTO modifyProduct(Long id, ProductDTO productDTO) {
+  public ProductDTO modifyProduct(@NotNull Long id, ProductDTO productDTO) {
     // ProductNotFoundException extends RuntimeException, which means it's an unchecked exception.
     // And by default, @Transactional will roll back the transaction when an unchecked exception is
     // thrown.
@@ -81,7 +82,7 @@ public class ProductService {
   }
 
   @Transactional
-  public void removeProductById(Long productId) {
+  public void removeProductById(@NotNull Long productId) {
     if (!productRepository.existsById(productId)) {
       // ProductNotFoundException extends RuntimeException, which means it's an unchecked exception.
       // And by default, @Transactional will roll back the transaction when an unchecked exception
@@ -95,7 +96,7 @@ public class ProductService {
     return productRepository.existsByNameAndDescriptionAndCategory(name, description, category);
   }
 
-  public List<Product> findByNameAndDescriptionAndCategory(Product product) {
+  public List<Product> findByNameAndDescriptionAndCategory(@NotNull Product product) {
     return this.productRepository.findByNameAndDescriptionAndCategory(
         product.getName(), product.getDescription(), product.getCategory());
   }

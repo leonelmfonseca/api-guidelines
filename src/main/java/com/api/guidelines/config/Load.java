@@ -2,16 +2,20 @@ package com.api.guidelines.config;
 
 import com.api.guidelines.dto.ProductDTO;
 import com.api.guidelines.service.ProductService;
+import jakarta.validation.constraints.NotNull;
+import java.util.logging.Logger;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import java.util.logging.Logger;
+
 @Configuration
 public class Load {
-  
+
   private final Logger logger = Logger.getLogger(getClass().getName());
+
   @Bean
-  CommandLineRunner loadSample(ProductService productService) {
+  @NotNull
+  CommandLineRunner loadSample(@NotNull ProductService productService) {
     return args -> {
       insertProduct(
           productService,
@@ -41,7 +45,7 @@ public class Load {
   }
 
   private void insertProduct(
-      ProductService productService,
+      @NotNull ProductService productService,
       String name,
       double price,
       String description,

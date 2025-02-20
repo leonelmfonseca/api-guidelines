@@ -2,6 +2,7 @@ package com.api.guidelines.config.security;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
+import jakarta.validation.constraints.NotNull;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -21,7 +22,7 @@ public class SecurityConfiguration {
 
   @Bean
   // todo: create custom exception to avoid throwing a generic exception
-  public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+  public SecurityFilterChain securityFilterChain(@NotNull HttpSecurity http) throws Exception {
     http // Disable CSRF (Cross-Site Request Forgery) for stateless APIs
         .csrf(AbstractHttpConfigurer::disable)
         .authorizeHttpRequests(

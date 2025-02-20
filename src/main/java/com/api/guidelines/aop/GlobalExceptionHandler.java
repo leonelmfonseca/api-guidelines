@@ -1,10 +1,15 @@
 package com.api.guidelines.aop;
 
-import com.api.guidelines.exceptions.ProductErrorResponse;
+import static com.api.guidelines.utils.ProductUtils.createProductResponse;
+
+import com.api.guidelines.exceptions.DatabaseOperationException;
+import com.api.guidelines.exceptions.ProductAlreadyExistsException;
 import com.api.guidelines.exceptions.ProductInvalidIdException;
 import com.api.guidelines.exceptions.ProductNotFoundException;
+import com.api.guidelines.exceptions.ProductResponse;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -21,34 +26,32 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 public class GlobalExceptionHandler {
 
   @ExceptionHandler(MethodArgumentTypeMismatchException.class)
-  public ResponseEntity<ProductErrorResponse> handleMethodArgumentTypeMismatch(
-      MethodArgumentTypeMismatchException ex) {
+  public @NotNull ResponseEntity<ProductResponse> handleMethodArgumentTypeMismatch(
+      @NotNull MethodArgumentTypeMismatchException ex) {
 
-    String message = "Invalid value for '" + ex.getName() + "'";
-    ProductErrorResponse errorResponse =
-        new ProductErrorResponse(
-            HttpStatus.BAD_REQUEST.value(), message, System.currentTimeMillis());
-    return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    ProductResponse errorResponse =
+        createProductResponse(HttpStatus.BAD_REQUEST, "Invalid request");
+    return new ResponseEntity<>(errorResponse, errorResponse.status());
   }
 
   @ExceptionHandler(ProductNotFoundException.class)
-  public ResponseEntity<ProductErrorResponse> handleProductNotFoundException(
-      ProductNotFoundException ex) {
-    ProductErrorResponse errorResponse =
-        new ProductErrorResponse(
-            HttpStatus.NOT_FOUND.value(), ex.getMessage(), System.currentTimeMillis());
-    return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+  public @NotNull ResponseEntity<ProductResponse> handleProductNotFoundException(
+      @NotNull ProductNotFoundException ex) {
+
+    ProductResponse errorResponse = createProductResponse(HttpStatus.NOT_FOUND, ex.getMessage());
+    return new ResponseEntity<>(errorResponse, errorResponse.status());
   }
 
   @ExceptionHandler(ProductInvalidIdException.class)
-  public ProductErrorResponse handleInvalidIdException(ProductInvalidIdException ex) {
-    return new ProductErrorResponse(
-        HttpStatus.BAD_REQUEST.value(), ex.getMessage(), System.currentTimeMillis());
+  public @NotNull ResponseEntity<ProductResponse> handleInvalidIdException(
+      @NotNull ProductInvalidIdException ex) {
+    ProductResponse errorResponse = createProductResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
+    return new ResponseEntity<>(errorResponse, errorResponse.status());
   }
 
   @ExceptionHandler(ConstraintViolationException.class)
-  public ResponseEntity<ProductErrorResponse> handleConstraintViolationException(
-      ConstraintViolationException ex) {
+  public @NotNull ResponseEntity<ProductResponse> handleConstraintViolationException(
+      @NotNull ConstraintViolationException ex) {
 
     // Extract the first validation error message
     String message =
@@ -57,9 +60,23 @@ public class GlobalExceptionHandler {
             .findFirst()
             .orElse("Validation failed");
 
-    ProductErrorResponse errorResponse =
-        new ProductErrorResponse(
-            HttpStatus.BAD_REQUEST.value(), message, System.currentTimeMillis());
+    ProductResponse errorResponse =
+        new ProductResponse(HttpStatus.BAD_REQUEST, message, System.currentTimeMillis());
     return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+  }
+
+  @ExceptionHandler(ProductAlreadyExistsException.class)
+  public @NotNull ResponseEntity<ProductResponse> handleProductAlreadyExistsException(
+      @NotNull ProductAlreadyExistsException ex) {
+    ProductResponse errorResponse = createProductResponse(HttpStatus.CONFLICT, ex.getMessage());
+    return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
+  }
+
+  @ExceptionHandler(DatabaseOperationException.class)
+  public @NotNull ResponseEntity<ProductResponse> handleDatabaseOperationException(
+      @NotNull ProductAlreadyExistsException ex) {
+    ProductResponse errorResponse =
+        createProductResponse(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
+    return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
   }
 }

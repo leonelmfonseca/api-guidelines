@@ -1,16 +1,30 @@
 package com.api.guidelines.controller;
 
+import static com.api.guidelines.utils.ProductUtils.createProductResponse;
+
 import com.api.guidelines.dto.ProductDTO;
+import com.api.guidelines.exceptions.DatabaseOperationException;
+import com.api.guidelines.exceptions.ProductAlreadyExistsException;
 import com.api.guidelines.exceptions.ProductNotFoundException;
+import com.api.guidelines.exceptions.ProductResponse;
 import com.api.guidelines.service.ProductService;
 import jakarta.validation.constraints.Min;
-import java.util.*;
-import org.jetbrains.annotations.NotNull;
+import jakarta.validation.constraints.NotNull;
+import java.util.List;
+import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @Validated // method level validation
@@ -25,8 +39,8 @@ public class ProductController {
   }
 
   @GetMapping("/{id}")
-  public Optional<ProductDTO> findProductById(
-      @PathVariable @Min(value = 1, message = "Product ID must be at least 1") Long id) {
+  public @NotNull Optional<ProductDTO> findProductById(
+      @PathVariable @Min(value = 1, message = "Product ID must be at least 1") @NotNull Long id) {
 
     return Optional.ofNullable(
         productService.getProductById(id).orElseThrow(() -> new ProductNotFoundException(id)));
@@ -38,28 +52,30 @@ public class ProductController {
   }
 
   @PostMapping
-  public ResponseEntity<Map<String, Object>> createProduct(@RequestBody ProductDTO productDTO) {
-    if (productService.isProductExisting(
-        productDTO.getName(), productDTO.getDescription(), productDTO.getCategory())) {
-      Map<String, Object> response = getStringObjectMap(productDTO);
-      return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+  public @NotNull ResponseEntity<ProductResponse> createProduct(
+      @RequestBody @NotNull ProductDTO productDTO) {
+
+    boolean productExists =
+        productService.isProductExisting(
+            productDTO.getName(), productDTO.getDescription(), productDTO.getCategory());
+
+    if (productExists) {
+      throw new ProductAlreadyExistsException(productDTO);
     }
 
     ProductDTO createdProductDTO = productService.createProduct(productDTO);
-    return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("product", createdProductDTO));
-  }
+    if (createdProductDTO == null) {
+      throw new DatabaseOperationException("Failed to create product in the database.");
+    }
 
-  private static @NotNull Map<String, Object> getStringObjectMap(ProductDTO productDTO) {
-    // optimize: use ProductErrorResponse instead
-    Map<String, Object> response = new HashMap<>();
-    response.put("message", "Product already exists");
-    response.put("product", productDTO.getName());
-    response.put("timestamp", System.currentTimeMillis());
-    return response;
+    ProductResponse productResponse =
+        createProductResponse(
+            HttpStatus.CREATED, "Product: " + createdProductDTO + " created successfully.");
+    return new ResponseEntity<>(productResponse, HttpStatus.CREATED);
   }
 
   @PutMapping("/{id}")
-  public ResponseEntity<ProductDTO> updateProduct(
+  public @NotNull ResponseEntity<ProductDTO> updateProduct(
       @NotNull @PathVariable Long id, @NotNull @RequestBody ProductDTO productDTO) {
     ProductDTO updatedProductDTO = productService.modifyProduct(id, productDTO);
     if (updatedProductDTO != null) {
@@ -69,27 +85,27 @@ public class ProductController {
   }
 
   @GetMapping("/deleteProduct")
-  public ResponseEntity<Map<String, Object>> deleteProductByIdAntiPattern(
+  public @NotNull ResponseEntity<ProductResponse> deleteProductByIdAntiPattern(
       @NotNull @RequestParam Long id) {
 
     productService.removeProductById(id);
-    // optimize: use ProductErrorResponse instead
-    Map<String, Object> response = new HashMap<>();
-    response.put("message", "Product deleted successfully using anti-pattern implementation :(");
-    response.put("deletedProductId", id);
-    response.put("timestamp", System.currentTimeMillis());
 
-    return ResponseEntity.ok(response);
+    ProductResponse response =
+        createProductResponse(
+            HttpStatus.OK,
+            "Product: " + id + " deleted successfully,using anti-pattern implementation :(.");
+    return new ResponseEntity<>(response, HttpStatus.OK);
   }
 
   @DeleteMapping("/{id}")
-  public ResponseEntity<Map<String, Object>> deleteProductById(@NotNull @PathVariable Long id) {
+  public @NotNull ResponseEntity<ProductResponse> deleteProductById(
+      @NotNull @PathVariable Long id) {
     productService.removeProductById(id);
-    // optimize: use ProductErrorResponse instead
-    Map<String, Object> response = new HashMap<>();
-    response.put("message", "Product deleted successfully using best practices implementation");
-    response.put("deletedProductId", id);
-    response.put("timestamp", System.currentTimeMillis());
-    return ResponseEntity.ok(response);
+
+    ProductResponse response =
+        createProductResponse(
+            HttpStatus.OK,
+            "Product: " + id + " deleted successfully using best practices implementation :).");
+    return new ResponseEntity<>(response, HttpStatus.OK);
   }
 }

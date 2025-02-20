@@ -2,6 +2,7 @@ package com.api.guidelines.controller.versioning;
 
 import com.api.guidelines.dto.ProductDTO;
 import com.api.guidelines.service.ProductService;
+import jakarta.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +24,7 @@ where the controllers return data in the form of JSON or other serialization for
 */
 @RestControllerAdvice
 public class ProductV2Controller {
-  
+
   private final ProductService productService;
 
   @Autowired
@@ -37,7 +38,7 @@ public class ProductV2Controller {
   }
 
   @GetMapping("/{id}")
-  public ResponseEntity<ProductDTO> findProductById(@PathVariable Long id) {
+  public @NotNull ResponseEntity<ProductDTO> findProductById(@PathVariable @NotNull Long id) {
 
     Optional<ProductDTO> product = productService.getProductById(id);
 
