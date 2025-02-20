@@ -3,7 +3,11 @@ package com.api.guidelines.mapper;
 import com.api.guidelines.dto.ProductDTO;
 import com.api.guidelines.entity.Product;
 import java.util.List;
-import org.mapstruct.*;
+import org.mapstruct.BeanMapping;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
+import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.factory.Mappers;
 
 @Mapper(componentModel = "spring")
