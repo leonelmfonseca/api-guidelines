@@ -1,5 +1,7 @@
 package com.api.guidelines.dto;
 
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -12,10 +14,16 @@ import lombok.NoArgsConstructor;
 // are now determined in "of" fields
 @EqualsAndHashCode(of = {"name", "description", "category"})
 public class ProductDTO {
-  private Long id;
-  private String name;
-  private double price;
+  @Positive private Long id;
+  @NotEmpty private String name;
+  @NotEmpty private double price;
   private String description;
   private String category;
   private int stock;
+
+  public ProductDTO(Long id, String name, double price) {
+    this.id = id;
+    this.name = name;
+    this.price = price;
+  }
 }
