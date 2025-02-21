@@ -21,7 +21,7 @@ backward compatibility and smooth transitions between versions
 @RestController
 @RequestMapping("/api/v1/products")
 public class ProductV1Controller {
-  
+
   private final ProductService productService;
 
   @Autowired
