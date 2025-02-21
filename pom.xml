@@ -26,6 +26,7 @@
         <!-- It's a good practice to use property names that are consistent and clear,
         using hyphens (-) in property names is not standard in Maven.
         Instead, use camelCase or underscores. -->
+        <!-- todo: already defined in parent -->
         <springBootVersion>3.4.2</springBootVersion>
         <jakarta.validation.api.version>3.1.1</jakarta.validation.api.version>
         <mapstruct.version>1.6.3</mapstruct.version>
@@ -33,16 +34,24 @@
         <lombok.mapstruct.binding.version>0.2.0</lombok.mapstruct.binding.version>
         <jacoco.version>0.8.12</jacoco.version>
         <jx.rs.version>2.1.1</jx.rs.version>
-        <log4j.version>2.24.3</log4j.version>
-        <jersey.version>2.34</jersey.version>
+        <datafaker.version>2.4.2</datafaker.version>
     </properties>
 
     <dependencies>
         <!-- Spring Boot Starters -->
+
+        <!-- Core Spring Boot (includes SLF4J and Logback) -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+        </dependency>
+
+        <!-- Includes already Jackson, Tomcat -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
+
         <!-- Spring Validation -->
         <!-- Includes both the Jakarta Validation API and Hibernate Validator -->
         <dependency>
@@ -117,25 +126,18 @@
             <scope>runtime</scope>
         </dependency>
         <dependency>
-            <groupId>org.jetbrains</groupId>
-            <artifactId>annotations</artifactId>
-            <version>26.0.1</version>
-            <scope>compile</scope>
+            <groupId>net.datafaker</groupId>
+            <artifactId>datafaker</artifactId>
+            <version>${datafaker.version}</version>
+            <scope>test</scope>
         </dependency>
-
+        <!-- Janino for Logback (optional, only if needed) -->
         <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-core</artifactId>
-            <version>${log4j.version}</version>
+            <groupId>org.codehaus.janino</groupId>
+            <artifactId>janino</artifactId>
+            <version>3.1.12</version>
+            <scope>test</scope>
         </dependency>
-
-        <dependency>
-            <groupId>org.glassfish.jersey.core</groupId>
-            <artifactId>jersey-server</artifactId>
-            <version>${jersey.version}</version>
-            <scope>provided</scope>
-        </dependency>
-
     </dependencies>
 
     <build>
